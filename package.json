@@ -1,11 +1,20 @@
-{
+ {
   "name": "backendtpi",
   "version": "1.0.0",
   "description": "TPI el que no hace se ba ",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "author": "Diego , Ivan , Celina",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  },
+  "dependencies": {
+    "@damianegreco/hashpass": "^2.0.0",
+    "express": "^4.19.2",
+    "mysql": "^2.18.1"
+  }
 }

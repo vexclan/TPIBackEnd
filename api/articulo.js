@@ -1,0 +1,91 @@
+const express = require('express');
+const { conexion } = require('../db/conexion.js')
+const router = express.Router();
+
+
+/*
+params => url (query) ?id=123 = ?id=123
+params => url (params) /:id = /123
+body => datos
+
+dreate => post   = body 
+read =>   get    = params 
+update => put    = params y body
+delete => delete = params
+
+*/
+
+router.get('/',function(req, res, next){
+    //obtiene Articulo
+    const { id } = req.query;
+    
+    const sql = "SELECT * FROM Articulo WHERE id =?";
+    conexion.query(sql,[user], function(error, result){
+        if (error){
+            console.error(error);
+            return res.json.status(500).send(error);
+        }
+        res.json({
+            status: "ok",
+            Articulo:result 
+        })
+    })
+
+})
+
+router.post('/',function (req, res, next) {
+    //guardar una Articulo
+
+    const { nombre , descripcion , precio } = req.body;
+
+    const sql = "INSET INTO Articulo "+"(nombre , descripcion , precio) "+" values (?,?,?) RETURNIG id"
+
+    conexion.query(sql, [nombre , descripcion , precio],function(error, result){
+        if (error){
+            console.error(error);
+            return res.json.status(500).send(error);
+        }
+        console.log(result);
+        res.json({status:"ok", Articulo_id: result[0].id})
+    })
+})
+
+router.put('/',function (req, res, next) {
+    //actualizar datos de una Articulo
+
+    const { id } = req.query;
+    const { nombre , descripcion , precio } = req.body;
+
+    const sql = "UPDATE Articulo SET "+ "documento =?, nombre =?, apellido =?, domicilio =?, telefono =?"+ "where id= ?"
+    
+    conexion.query(sql, [nombre , descripcion , precio , id],function(error, result){
+        if (error){
+            console.error(error);
+            return res.json.status(500).send(error);
+        }
+        console.log(result);
+        res.json({status:"ok"})
+    })
+
+
+})
+
+router.delete('/',function (req, res, next) {
+    //delete elimina una Articulo
+    
+    const { id } = req.query;
+
+    const sql = "DELETE FROM Articulo where id= ?"
+    
+    conexion.query(sql, [id],function(error, result){
+        if (error){
+            console.error(error);
+            return res.json.status(500).send(error);
+        }
+        console.log(result);
+        res.json({status:"ok"})
+    })
+})
+
+
+module.exports = router;
