@@ -34,7 +34,7 @@ router.get('/',function(req, res, next){
 })
 
 router.post('/',function (req, res, next) {
-    //guardar una Articulo
+    //guardar un Articulo
 
     const { nombre , descripcion , precio } = req.body;
     console.log(nombre , descripcion , precio );
@@ -53,7 +53,7 @@ router.post('/',function (req, res, next) {
 })
 
 router.put('/',function (req, res, next) {
-    //actualizar datos de una Articulo
+    //actualizar datos de un Articulo
 
     const { id } = req.query;
     const { nombre , descripcion , precio } = req.body;
@@ -73,7 +73,7 @@ router.put('/',function (req, res, next) {
 })
 
 router.delete('/',function (req, res, next) {
-    //delete elimina una Articulo
+    //delete elimina un Articulo
     
     const { id } = req.query;
 
