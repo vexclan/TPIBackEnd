@@ -1,6 +1,6 @@
 const mysql = require ("mysql");
-const conexion = mysql. createConnection({
-    host: "https://phpmyadmin.ctpoba.edu.ar/",
+const conexion = mysql.createConnection({
+    host: "phpmyadmin.ctpoba.edu.ar",
     user: "gomezd",
     password: "46809704",
     database: "24_71_E"

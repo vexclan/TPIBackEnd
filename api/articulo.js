@@ -37,8 +37,10 @@ router.post('/',function (req, res, next) {
     //guardar una Articulo
 
     const { nombre , descripcion , precio } = req.body;
+    console.log(nombre , descripcion , precio );
+    
 
-    const sql = "INSET INTO Articulo "+"(nombre , descripcion , precio) "+" values (?,?,?) RETURNIG id"
+    const sql = "INSERT INTO Articulo "+"(`nombre` , `decripcion` , `precio`) "+" VALUES (?,?,?)"
 
     conexion.query(sql, [nombre , descripcion , precio],function(error, result){
         if (error){
@@ -46,7 +48,7 @@ router.post('/',function (req, res, next) {
             return res.json.status(500).send(error);
         }
         console.log(result);
-        res.json({status:"ok", Articulo_id: result[0].id})
+        res.json({status:"ok", Articulo_id: result.insertId})
     })
 })
 
