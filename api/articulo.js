@@ -18,18 +18,37 @@ delete => delete = params
 router.get('/',function(req, res, next){
     //obtiene Articulo
     const { id } = req.query;
-    
-    const sql = "SELECT * FROM Articulo WHERE id =?";
-    conexion.query(sql,[user], function(error, result){
+    console.log(id);
+    if (id !==undefined) {
+        const sql = "SELECT * FROM Articulo WHERE id =?";
+        
+        conexion.query(sql,[id], function(error, result){
+            if (error){
+                console.error(error);
+                return res.json.status(500).send(error);
+            }
+            console.log(result);
+            
+            res.json({
+                status: "ok",
+                Articulo:result 
+            })
+
+    })
+    } else {
+        const sql = "SELECT * FROM Articulo";
+    conexion.query(sql, function(error, result){
         if (error){
             console.error(error);
             return res.json.status(500).send(error);
         }
         res.json({
             status: "ok",
-            Articulo:result 
+            personas:result 
         })
     })
+
+    }
 
 })
 
@@ -56,11 +75,13 @@ router.put('/',function (req, res, next) {
     //actualizar datos de un Articulo
 
     const { id } = req.query;
-    const { nombre , descripcion , precio } = req.body;
-
-    const sql = "UPDATE Articulo SET "+ "documento =?, nombre =?, apellido =?, domicilio =?, telefono =?"+ "where id= ?"
+    const { nombre , decripcion , precio } = req.body;
+    console.log(nombre , decripcion , precio , id);
     
-    conexion.query(sql, [nombre , descripcion , precio , id],function(error, result){
+
+    const sql = "UPDATE Articulo SET "+ "nombre =?, decripcion =?, precio =? "+ "WHERE id= ?"
+    
+    conexion.query(sql, [nombre , decripcion , precio , id],function(error, result){
         if (error){
             console.error(error);
             return res.json.status(500).send(error);
