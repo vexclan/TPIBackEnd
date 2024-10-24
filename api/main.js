@@ -4,11 +4,12 @@ const{ verificarToken }=require("@damianegreco/hashpass");
 const TOKEN_SECRET = "PRUEBA1 12312gqwkjudnjfasigqw";
 
 const articuloRouter=require("./articulo");
-
-router.use("/articulo",articuloRouter);
+const usuariosRouter=require("./usuarios");
 
 router.use("/articulo",function (req, res, next){
     const token = req.headers.authorization;
+    console.log(token);
+    
     const verificacion = verificarToken(token, TOKEN_SECRET);
     if (verificacion?.data  !== undefined) {
         next();
@@ -18,5 +19,7 @@ router.use("/articulo",function (req, res, next){
     }
 });
 
+router.use("/usuarios",usuariosRouter);
+router.use("/articulo",articuloRouter);
 
 module.exports=router;
