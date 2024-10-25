@@ -47,7 +47,7 @@ router.use("/articulo",function (req, res, next){
     }
 });
 
-router.use("/usuarios",paisRouter);
+router.use("/pais",paisRouter);
 router.use("/usuarios",usuariosRouter);
 router.use("/articulo",articuloRouter);
 router.use("/provincia",provinciaRouter);
