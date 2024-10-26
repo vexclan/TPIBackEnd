@@ -84,7 +84,7 @@ router.get('/', validarId, async (req, res) => {
                     mensaje: "Pedido no encontrado"
                 });
             }
-
+            
             const pedido = {
                 ...results[0],
                 articulos: results.map(row => ({
