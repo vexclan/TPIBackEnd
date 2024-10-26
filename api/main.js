@@ -61,7 +61,6 @@ router.use("/administrador",function (req, res, next){
     }
 });
 
-
 router.use("/administrador",administradorRouter);
 router.use("/pais",paisRouter);
 router.use("/usuarios",usuariosRouter);
