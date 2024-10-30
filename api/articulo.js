@@ -59,7 +59,7 @@ router.post('/',function (req, res, next) {
     console.log(nombre , descripcion , precio );
     
 
-    const sql = "INSERT INTO Articulo "+"(`nombre` , `decripcion` , `precio`) "+" VALUES (?,?,?)"
+    const sql = "INSERT INTO Articulo (`nombre` , `decripcion` , `precio`) VALUES (?,?,?)"
 
     conexion.query(sql, [nombre , descripcion , precio],function(error, result){
         if (error){
@@ -79,7 +79,7 @@ router.put('/',function (req, res, next) {
     console.log(nombre , decripcion , precio , id);
     
 
-    const sql = "UPDATE Articulo SET "+ "nombre =?, decripcion =?, precio =? "+ "WHERE id= ?"
+    const sql = "UPDATE Articulo SET nombre =?, decripcion =?, precio =? WHERE id= ?"
     
     conexion.query(sql, [nombre , decripcion , precio , id],function(error, result){
         if (error){
