@@ -19,7 +19,7 @@ router.get('/',function(req, res, next){
     //obtiene Articulo
     const { id } = req.query;
     console.log(id);
-    if (id !==undefined) {
+    if (id !== undefined) {
         const sql = "SELECT * FROM Articulo WHERE id =?";
         
         conexion.query(sql,[id], function(error, result){
@@ -44,7 +44,7 @@ router.get('/',function(req, res, next){
         }
         res.json({
             status: "ok",
-            personas:result 
+            Articulos:result 
         })
     })
 
@@ -55,13 +55,13 @@ router.get('/',function(req, res, next){
 router.post('/',function (req, res, next) {
     //guardar un Articulo
 
-    const { nombre , descripcion , precio } = req.body;
-    console.log(nombre , descripcion , precio );
+    const { nombre , descripcion , precio , imagen} = req.body;
+    console.log(nombre , descripcion , precio ,imagen);
     
 
-    const sql = "INSERT INTO Articulo "+"(`nombre` , `decripcion` , `precio`) "+" VALUES (?,?,?)"
+    const sql = "INSERT INTO Articulo (`nombre` , `decripcion` , `precio`,`imagen`) VALUES (?,?,?,?)"
 
-    conexion.query(sql, [nombre , descripcion , precio],function(error, result){
+    conexion.query(sql, [nombre , descripcion , precio , imagen],function(error, result){
         if (error){
             console.error(error);
             return res.json.status(500).send(error);
@@ -79,7 +79,7 @@ router.put('/',function (req, res, next) {
     console.log(nombre , decripcion , precio , id);
     
 
-    const sql = "UPDATE Articulo SET "+ "nombre =?, decripcion =?, precio =? "+ "WHERE id= ?"
+    const sql = "UPDATE Articulo SET nombre =?, decripcion =?, precio =? WHERE id= ?"
     
     conexion.query(sql, [nombre , decripcion , precio , id],function(error, result){
         if (error){
