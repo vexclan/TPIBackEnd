@@ -13,41 +13,13 @@ const validarId = (req, res, next) => {
     next();
 };
 
-const validarPedido = (req, res, next) => {
-    const { idCliente, fechaEnvio, total, formaPago, articulos } = req.body;
+const validarCiudad = (req, res, next) => {
+    const { nombre } = req.body;
     
-    if (!idCliente || !Number.isInteger(parseInt(idCliente))) {
+    if (!nombre || typeof nombre !== 'string' || nombre.trim().length === 0) {
         return res.status(400).json({
             status: "error",
-            mensaje: "ID de cliente inválido"
-        });
-    }
-
-    if (!fechaEnvio || !Date.parse(fechaEnvio)) {
-        return res.status(400).json({
-            status: "error",
-            mensaje: "Fecha de envío inválida"
-        });
-    }
-
-    if (!total || typeof total !== 'number' || total <= 0) {
-        return res.status(400).json({
-            status: "error",
-            mensaje: "Total inválido"
-        });
-    }
-
-    if (!formaPago || typeof formaPago !== 'string' || formaPago.trim().length === 0) {
-        return res.status(400).json({
-            status: "error",
-            mensaje: "Forma de pago inválida"
-        });
-    }
-
-    if (!Array.isArray(articulos) || articulos.length === 0) {
-        return res.status(400).json({
-            status: "error",
-            mensaje: "Debe incluir al menos un artículo"
+            mensaje: "Nombre de ciudad inválido"
         });
     }
 
@@ -60,46 +32,18 @@ router.get('/', validarId, async (req, res) => {
         let sql, params = [];
 
         if (id !== undefined) {
-            sql = `
-                SELECT p.*, ap.idArticulo, ap.cantidad, ap.precio 
-                FROM Pedido p 
-                LEFT JOIN ArticuloPedido ap ON p.id = ap.idPedido 
-                WHERE p.id = ?
-            `;
+            sql = "SELECT * FROM Ciudad WHERE id = ?";
             params = [id];
         } else {
-            sql = `
-                SELECT p.*, c.correo as clienteCorreo 
-                FROM Pedido p 
-                JOIN Cliente c ON p.idCliente = c.id
-            `;
+            sql = "SELECT * FROM Ciudad";
         }
 
         const [results] = await conexion.promise().query(sql, params);
 
-        if (id) {
-            if (results.length === 0) {
-                return res.status(404).json({
-                    status: "error",
-                    mensaje: "Pedido no encontrado"
-                });
-            }
-            
-            const pedido = {
-                ...results[0],
-                articulos: results.map(row => ({
-                    idArticulo: row.idArticulo,
-                    cantidad: row.cantidad,
-                    precio: row.precio
-                }))
-            };
-            delete pedido.idArticulo;
-            delete pedido.cantidad;
-            delete pedido.precio;
-
-            return res.json({
-                status: "ok",
-                datos: pedido
+        if (id && results.length === 0) {
+            return res.status(404).json({
+                status: "error",
+                mensaje: "Ciudad no encontrada"
             });
         }
 
@@ -108,7 +52,7 @@ router.get('/', validarId, async (req, res) => {
             datos: results
         });
     } catch (error) {
-        console.error('Error en GET /pedido:', error);
+        console.error('Error en GET /ciudad:', error);
         res.status(500).json({
             status: "error",
             mensaje: "Error interno del servidor",
@@ -117,37 +61,22 @@ router.get('/', validarId, async (req, res) => {
     }
 });
 
-router.post('/', validarPedido, async (req, res) => {
-    const connection = await conexion.promise();
+router.post('/', validarCiudad, async (req, res) => {
     try {
-        await connection.beginTransaction();
+        const { nombre } = req.body;
 
-        const { idCliente, fechaEnvio, total, formaPago, articulos } = req.body;
-
-        const [resultPedido] = await connection.query(
-            "INSERT INTO Pedido (idCliente, fechaEnvio, total, formaPago) VALUES (?, ?, ?, ?)",
-            [idCliente, fechaEnvio, total, formaPago]
+        const [result] = await conexion.promise().query(
+            "INSERT INTO Ciudad (nombre) VALUES (?)",
+            [nombre]
         );
-
-        const idPedido = resultPedido.insertId;
-
-        for (const articulo of articulos) {
-            await connection.query(
-                "INSERT INTO ArticuloPedido (idPedido, idArticulo, cantidad, precio) VALUES (?, ?, ?, ?)",
-                [idPedido, articulo.idArticulo, articulo.cantidad, articulo.precio]
-            );
-        }
-
-        await connection.commit();
 
         res.status(201).json({
             status: "ok",
-            mensaje: "Pedido creado exitosamente",
-            id: idPedido
+            mensaje: "Ciudad creada exitosamente",
+            id: result.insertId
         });
     } catch (error) {
-        await connection.rollback();
-        console.error('Error en POST /pedido:', error);
+        console.error('Error en POST /ciudad:', error);
         res.status(500).json({
             status: "error",
             mensaje: "Error interno del servidor",
@@ -156,45 +85,29 @@ router.post('/', validarPedido, async (req, res) => {
     }
 });
 
-router.put('/', [validarId, validarPedido], async (req, res) => {
-    const connection = await conexion.promise();
+router.put('/', [validarId, validarCiudad], async (req, res) => {
     try {
-        await connection.beginTransaction();
-
         const { id } = req.query;
-        const { idCliente, fechaEnvio, total, formaPago, articulos } = req.body;
+        const { nombre } = req.body;
 
-        const [resultPedido] = await connection.query(
-            "UPDATE Pedido SET idCliente = ?, fechaEnvio = ?, total = ?, formaPago = ? WHERE id = ?",
-            [idCliente, fechaEnvio, total, formaPago, id]
+        const [result] = await conexion.promise().query(
+            "UPDATE Ciudad SET nombre = ? WHERE id = ?",
+            [nombre, id]
         );
 
-        if (resultPedido.affectedRows === 0) {
-            await connection.rollback();
+        if (result.affectedRows === 0) {
             return res.status(404).json({
                 status: "error",
-                mensaje: "Pedido no encontrado"
+                mensaje: "Ciudad no encontrada"
             });
         }
 
-        await connection.query("DELETE FROM ArticuloPedido WHERE idPedido = ?", [id]);
-
-        for (const articulo of articulos) {
-            await connection.query(
-                "INSERT INTO ArticuloPedido (idPedido, idArticulo, cantidad, precio) VALUES (?, ?, ?, ?)",
-                [id, articulo.idArticulo, articulo.cantidad, articulo.precio]
-            );
-        }
-
-        await connection.commit();
-
         res.json({
             status: "ok",
-            mensaje: "Pedido actualizado exitosamente"
+            mensaje: "Ciudad actualizada exitosamente"
         });
     } catch (error) {
-        await connection.rollback();
-        console.error('Error en PUT /pedido:', error);
+        console.error('Error en PUT /ciudad:', error);
         res.status(500).json({
             status: "error",
             mensaje: "Error interno del servidor",
@@ -204,33 +117,27 @@ router.put('/', [validarId, validarPedido], async (req, res) => {
 });
 
 router.delete('/', validarId, async (req, res) => {
-    const connection = await conexion.promise();
     try {
-        await connection.beginTransaction();
-
         const { id } = req.query;
 
-        await connection.query("DELETE FROM ArticuloPedido WHERE idPedido = ?", [id]);
-
-        const [result] = await connection.query("DELETE FROM Pedido WHERE id = ?", [id]);
+        const [result] = await conexion.promise().query(
+            "DELETE FROM Ciudad WHERE id = ?",
+            [id]
+        );
 
         if (result.affectedRows === 0) {
-            await connection.rollback();
             return res.status(404).json({
                 status: "error",
-                mensaje: "Pedido no encontrado"
+                mensaje: "Ciudad no encontrada"
             });
         }
 
-        await connection.commit();
-
         res.json({
             status: "ok",
-            mensaje: "Pedido eliminado exitosamente"
+            mensaje: "Ciudad eliminada exitosamente"
         });
     } catch (error) {
-        await connection.rollback();
-        console.error('Error en DELETE /pedido:', error);
+        console.error('Error en DELETE /ciudad:', error);
         res.status(500).json({
             status: "error",
             mensaje: "Error interno del servidor",
