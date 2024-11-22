@@ -11,7 +11,7 @@ const administradorRouter=require("./administrador");
 
 router.use("/pais",function (req, res, next){
     const token = req.headers.authorization;
-    console.log(token);
+    console.log('token : ', token);
     
     const verificacion = verificarToken(token, TOKEN_SECRET);
     if (verificacion?.data  !== undefined) {
@@ -37,7 +37,7 @@ router.use("/provincia",function (req, res, next){
 
 router.use("/articulo",function (req, res, next){
     const token = req.headers.authorization;
-    console.log(token);
+    console.log('token : ',token);
     
     const verificacion = verificarToken(token, TOKEN_SECRET);
     if (verificacion?.data  !== undefined) {
