@@ -1,25 +1,15 @@
 const express = require('express');
 const { conexion } = require('../db/conexion.js')
 const router = express.Router();
-
-
-/*
-params => url (query) ?id=123 = ?id=123
-params => url (params) /:id = /123
-body => datos
-
-dreate => post   = body 
-read =>   get    = params 
-update => put    = params y body
-delete => delete = params
-
-*/
+const multer = require('multer')
+const upload = multer({dest:'imagenes/'})
+const fs = require('node:fs')
 
 router.get('/',function(req, res, next){
     //obtiene Articulo
     const { id } = req.query;
-    console.log(id);
-    if (id !==undefined) {
+    console.log('id : ',id);
+    if (id !== undefined) {
         const sql = "SELECT * FROM Articulo WHERE id =?";
         
         conexion.query(sql,[id], function(error, result){
@@ -44,7 +34,7 @@ router.get('/',function(req, res, next){
         }
         res.json({
             status: "ok",
-            personas:result 
+            Articulos:result 
         })
     })
 
@@ -52,16 +42,27 @@ router.get('/',function(req, res, next){
 
 })
 
-router.post('/',function (req, res, next) {
+function guardarImagen(file) {
+    const imagen = `./imagenes/${file.originalname}`;
+    fs.renameSync(file.path, imagen);
+    return imagen ;
+}
+
+
+
+router.post('/', upload.single('imagen') ,function (req, res, next) {
     //guardar un Articulo
-
-    const { nombre , descripcion , precio } = req.body;
-    console.log(nombre , descripcion , precio );
+  
+    console.log('imagen : ',req.file);
+    const imagen = guardarImagen(req.file);
+    console.log('imagen despues de la funcion : ',imagen)
     
+    const { nombre , descripcion , precio , activo } = req.body;
+    console.log(nombre , descripcion , precio , imagen , activo);
+    
+    const sql = "INSERT INTO Articulo (`nombre` , `descripcion` , `precio` , `imagen` , `activo`) VALUES (?,?,?,?,?)"
 
-    const sql = "INSERT INTO Articulo "+"(`nombre` , `decripcion` , `precio`) "+" VALUES (?,?,?)"
-
-    conexion.query(sql, [nombre , descripcion , precio],function(error, result){
+    conexion.query(sql, [nombre , descripcion , precio , imagen , activo],function(error, result){
         if (error){
             console.error(error);
             return res.json.status(500).send(error);
@@ -79,7 +80,7 @@ router.put('/',function (req, res, next) {
     console.log(nombre , decripcion , precio , id);
     
 
-    const sql = "UPDATE Articulo SET "+ "nombre =?, decripcion =?, precio =? "+ "WHERE id= ?"
+    const sql = "UPDATE Articulo SET nombre =?, decripcion =?, precio =? WHERE id= ?"
     
     conexion.query(sql, [nombre , decripcion , precio , id],function(error, result){
         if (error){
