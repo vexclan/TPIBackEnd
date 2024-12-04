@@ -3,11 +3,11 @@ const { conexion } = require('../db/conexion.js')
 const router = express.Router();
 
 router.get('/',function(req, res, next){
-    //obtiene Administrador
+    //obtiene Cliente
     const { id } = req.query;
     console.log(id);
     if (id !==undefined) {
-        const sql = "SELECT * FROM Administrador WHERE id =?";
+        const sql = "SELECT * FROM Cliente WHERE id =?";
         
         conexion.query(sql,[id], function(error, result){
             if (error){
@@ -18,57 +18,57 @@ router.get('/',function(req, res, next){
             
             res.json({
                 status: "ok",
-                Administrador:result 
+                Cliente:result 
             })
 
     })
     } else {
-        const sql = "SELECT * FROM Administrador";
-        conexion.query(sql, function(error, result){
-            if (error){
-                console.error(error);
-                return res.json.status(500).send(error);
-            }
-            res.json({
-                status: "ok",
-                personas:result 
-            })
+        const sql = "select  C.* , U.Usuario , COUNT(D.id) as 'Direcciones' from Cliente as C join Usuario as U on C.id_usuario = U.Id join Direccion as D on D.id_cliente = C.id GROUP BY C.id, U.Usuario;";
+    conexion.query(sql, function(error, result){
+        if (error){
+            console.error(error);
+            return res.json.status(500).send(error);
+        }
+        res.json({
+            status: "ok",
+            Cliente:result 
         })
+    })
 
     }
 
 })
 
 router.post('/',function (req, res, next) {
-    //guardar una Administrador
+    //guardar una Cliente
 
-    const { id_usuario } = req.body;
-    console.log(id_usuario );
+    const { Correo , id_usuario , activo } = req.body;
+    console.log( ' Correo , id_usuario , activo : ', Correo , id_usuario , activo );
     
 
-    const sql = "INSERT INTO Administrador (`id usuario`)  VALUES (?)"
+    const sql = "INSERT INTO `Cliente`( `Correo`, `id_usuario`, `activo`) VALUES (? , ? , ?)"
 
-    conexion.query(sql, [id_usuario ],function(error, result){
+    conexion.query(sql, [Correo , id_usuario , activo],function(error, result){
         if (error){
             console.error(error);
             return res.json.status(500).send(error);
         }
         console.log(result);
-        res.json({status:"ok", Administrador_id: result.insertId})
+        res.json({status:"ok", Cliente_id: result.insertId})
     })
 })
 
 router.put('/',function (req, res, next) {
-    //actualizar datos de una Administrador
+    //actualizar datos de una Cliente
 
     const { id } = req.query;
-    const { id_usuario } = req.body;
-    console.log(id_usuario );
+    const { Correo , id_usuario , activo } = req.body;
+    console.log( Correo , id_usuario , activo );
     
 
-    const sql = "UPDATE Administrador SET `id usuario` =? WHERE id= ?"
+    const sql = "UPDATE Cliente SET  Correo=? , id_usuario=? , activo=?  WHERE id= ?"
     
-    conexion.query(sql, [id_usuario , id],function(error, result){
+    conexion.query(sql, [ Correo , id_usuario , activo , id],function(error, result){
         if (error){
             console.error(error);
             return res.json.status(500).send(error);
@@ -81,11 +81,13 @@ router.put('/',function (req, res, next) {
 })
 
 router.delete('/',function (req, res, next) {
-    //delete elimina una Administrador
+    //delete elimina una Cliente
     
     const { id } = req.query;
+    console.log('delete : id : ',id);
+    
 
-    const sql = "DELETE FROM Administrador where id= ?"
+    const sql = "UPDATE Cliente SET activo = 1 where id= ?"
     
     conexion.query(sql, [id],function(error, result){
         if (error){
@@ -95,6 +97,7 @@ router.delete('/',function (req, res, next) {
         console.log(result);
         res.json({status:"ok"})
     })
+    
 })
 
 

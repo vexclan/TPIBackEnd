@@ -8,7 +8,7 @@ const fs = require('node:fs')
 router.get('/',function(req, res, next){
     //obtiene Articulo
     const { id } = req.query;
-    console.log('id : ',id);
+    console.log('get : id : ',id);
     if (id !== undefined) {
         const sql = "SELECT * FROM Articulo WHERE id =?";
         
@@ -58,7 +58,7 @@ router.post('/', upload.single('imagen') ,function (req, res, next) {
     console.log('imagen despues de la funcion : ',imagen)
     
     const { nombre , descripcion , precio , activo } = req.body;
-    console.log(nombre , descripcion , precio , imagen , activo);
+    console.log('post : nombre , descripcion , precio , imagen , activo : ', nombre , descripcion , precio , imagen , activo);
     
     const sql = "INSERT INTO Articulo (`nombre` , `descripcion` , `precio` , `imagen` , `activo`) VALUES (?,?,?,?,?)"
 
@@ -72,17 +72,21 @@ router.post('/', upload.single('imagen') ,function (req, res, next) {
     })
 })
 
-router.put('/',function (req, res, next) {
+router.put('/', upload.single('imagen') ,function (req, res, next) {
     //actualizar datos de un Articulo
 
+    console.log('imagen : ',req.file);
+    const imagen = guardarImagen(req.file);
+    console.log('imagen despues de la funcion : ',imagen)
+
     const { id } = req.query;
-    const { nombre , decripcion , precio } = req.body;
-    console.log(nombre , decripcion , precio , id);
+    const { nombre , descripcion , precio } = req.body;
+    console.log('put : nombre , descripcion , precio , id :',nombre , descripcion , precio , id);
     
 
-    const sql = "UPDATE Articulo SET nombre =?, decripcion =?, precio =? WHERE id= ?"
+    const sql = "UPDATE Articulo SET nombre =?, descripcion =?, precio =? , imagen =? WHERE id= ?"
     
-    conexion.query(sql, [nombre , decripcion , precio , id],function(error, result){
+    conexion.query(sql, [nombre , descripcion , precio , imagen , id],function(error, result){
         if (error){
             console.error(error);
             return res.json.status(500).send(error);
@@ -98,10 +102,12 @@ router.delete('/',function (req, res, next) {
     //delete elimina un Articulo
     
     const { id } = req.query;
-
-    const sql = "DELETE FROM Articulo where id= ?"
+    console.log('delete : id : ',id);
     
-    conexion.query(sql, [id],function(error, result){
+
+    const sql = "UPDATE Articulo SET activo = 1 where id= ?"
+    
+    conexion.query(sql , [id] ,function(error, result){
         if (error){
             console.error(error);
             return res.json.status(500).send(error);
