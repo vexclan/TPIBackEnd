@@ -1,13 +1,15 @@
 const express = require('express');
 const { conexion } = require('../db/conexion.js')
 const router = express.Router();
+console.log('Articulo_Pedido');
+
 
 router.get('/',function(req, res, next){
-    //obtiene Provincia
+    //obtiene Articulo_Pedido
     const { id } = req.query;
-    console.log(id);
+    console.log('id :',id);
     if (id !==undefined) {
-        const sql = "SELECT * FROM Provincia WHERE id =?";
+        const sql = "select AP.* , A.* FROM Articulo_Pedido as AP join Articulo as A on AP.id_articulo = A.id join Pedido as P on P.id = AP.id_pedido WHERE P.id = ?";
         
         conexion.query(sql,[id], function(error, result){
             if (error){
@@ -18,12 +20,12 @@ router.get('/',function(req, res, next){
             
             res.json({
                 status: "ok",
-                Provincia:result 
+                Articulo_Pedido:result 
             })
 
     })
     } else {
-        const sql = "SELECT * FROM Provincia";
+        const sql = "select AP.* , A.* FROM Articulo_Pedido as AP join Articulo as A on AP.id_articulo = A.id join Pedido as P on P.id = AP.id_pedido ";
     conexion.query(sql, function(error, result){
         if (error){
             console.error(error);
@@ -31,7 +33,7 @@ router.get('/',function(req, res, next){
         }
         res.json({
             status: "ok",
-            Provincia:result 
+            Articulo_Pedido:result 
         })
     })
 
@@ -40,13 +42,13 @@ router.get('/',function(req, res, next){
 })
 
 router.post('/',function (req, res, next) {
-    //guardar una Provincia
+    //guardar un Articulo_Pedido
 
     const { nombre } = req.body;
     console.log(nombre );
     
 
-    const sql = "INSERT INTO Provincia "+"(`nombre`) "+" VALUES (?)"
+    const sql = "INSERT INTO Articulo_Pedido (nombre)  VALUES (?)"
 
     conexion.query(sql, [nombre ],function(error, result){
         if (error){
@@ -54,19 +56,19 @@ router.post('/',function (req, res, next) {
             return res.json.status(500).send(error);
         }
         console.log(result);
-        res.json({status:"ok", Provincia_id: result.insertId})
+        res.json({status:"ok", Articulo_Pedido_id: result.insertId})
     })
 })
 
 router.put('/',function (req, res, next) {
-    //actualizar datos de una Provincia
+    //actualizar datos de un Articulo_Pedido
 
     const { id } = req.query;
     const { nombre } = req.body;
     console.log(nombre );
     
 
-    const sql = "UPDATE Provincia SET "+ "nombre =? "+ "WHERE id= ?"
+    const sql = "UPDATE Articulo_Pedido SET nombre =? WHERE id= ?"
     
     conexion.query(sql, [nombre , id],function(error, result){
         if (error){
@@ -81,11 +83,11 @@ router.put('/',function (req, res, next) {
 })
 
 router.delete('/',function (req, res, next) {
-    //delete elimina una Provincia
+    //delete elimina un Articulo_Pedido
     
     const { id } = req.query;
 
-    const sql = "UPDATE Provincia SET activo = 1 where id= ?"
+    const sql = "UPDATE Articulo_Pedido SET activo = 1 where id= ?"
     
     conexion.query(sql, [id],function(error, result){
         if (error){
