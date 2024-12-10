@@ -16,10 +16,10 @@ const checkUser=function(user){
     });
 }
 
-const guardarUsuario=function(user, passHash){
+const guardarUsuario=function(user, passHash ,admin){
     return new Promise((resolve, reject) => {
-        const sql="INSERT INTO Usuario (Usuario,Contraseña) VALUES(?,?)";
-        conexion.query(sql,[user,passHash], function(error,result){
+        const sql="INSERT INTO Usuario (Usuario,Contraseña,admin,activo) VALUES(?,?,?,0)";
+        conexion.query(sql,[user,passHash,admin], function(error,result){
             if(error)return reject(error);
             return resolve(result.insertId);
         })
@@ -27,14 +27,14 @@ const guardarUsuario=function(user, passHash){
 }
 
 router.post("/",function(req,res,next){
-    const {user, pass}=req.body;
-    console.log(user , pass);
+    const {user, pass , admin}=req.body;
+    console.log(user , pass ,admin);
     
 
     checkUser(user)
     .then(()=>{
         const passHasheada=hashPass(pass);
-        guardarUsuario(user,passHasheada)
+        guardarUsuario(user,passHasheada,admin)
         .then((Usuario_id)=>{
             res.json({status:"ok",Usuario_id});
         });
