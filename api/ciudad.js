@@ -1,7 +1,6 @@
 const express = require('express');
 const { conexion } = require('../db/conexion.js')
 const router = express.Router();
-console.log('Ciudad');
 
 
 router.get('/',function(req, res, next){
